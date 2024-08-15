@@ -1,0 +1,12 @@
+O que deve ser feito?
+-	Um registrador de mercado onde o usuário pode modificar informações de
+	produtos em sua loja.
+
+Programa Básico
+-	Registro de produtos
+-	Modificação do registro(Adicionar, remover, mudar informações)
+-	CLI
+
+Um pouco mais avançado
+-	Como armazenar os registros
+-	Como tratar as informações do registro
