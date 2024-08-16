@@ -12,7 +12,7 @@ getText(char *text, int lim)
     if (!fgets(text, lim, stdin))
         return -1;
 
-    unsigned int len = strlen(text);
+    size_t len = strlen(text);
     if (len > 0 && text[len - 1] == '\n')
         text[len - 1] = '\0';
 
@@ -25,25 +25,29 @@ getText(char *text, int lim)
 int
 main(void)
 {
+    int i, j;
+
     struct Produto {
         int id;
         double price;
         char name[MAXNAMELENGHT];
     } pd[MAXPRODUCTS];
 
-    for (int i=0; i<MAXPRODUCTS; ++i)
+    for (i=0; i<MAXPRODUCTS; ++i)
     {
-        pd[i].id = 0;
-        pd[i].price = 0.0;
+        pd[i].id = i + 1;
 
-        if (pd[i].id == 0)
+        printf("Digite o nome do produto: ");
+        getText(pd[i].name, MAXNAMELENGHT);
+
+        printf("Digite o preço: ");
+        while(scanf("%lf", &pd[i].price) != 1)
         {
-            pd[i].id = i + 1;
-
-            printf("Digite o nome do produto de ID=%d: ", pd[i].id);
-            getText(pd[i].name, MAXNAMELENGHT);
+            printf("Entrada inválida. Digite novamente: ");
+            while(getchar() != '\n');
         }
-        
+
+        while(getchar() != '\n');
     }
 
     for (int i=0; i<MAXPRODUCTS; ++i)
