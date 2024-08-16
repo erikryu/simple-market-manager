@@ -4,18 +4,22 @@
 #define MAXPRODUCTS 10
 #define MAXNAMELENGHT 50
 
-char*
-getProductName(char *name, int lim)
+int
+getText(char *text, int lim)
 {
-    int c, i;
+    int c = 0;
 
-    for (i=0; i<lim-1 && (c=getchar())!=EOF && c!='\n'; ++i)
-        name[i] = c;
+    if (!fgets(text, lim, stdin))
+        return -1;
 
-    if (c=='\n') ++i;
-    name[i] = '\0';
+    unsigned int len = strlen(text);
+    if (len > 0 && text[len - 1] == '\n')
+        text[len - 1] = '\0';
 
-    return name;
+    if (len==lim - 1 && text[len - 1] != '\0')
+        while((c = getchar()) != EOF && c!='\n');
+
+    return len;
 }
 
 int
@@ -25,23 +29,21 @@ main(void)
         int id;
         double price;
         char name[MAXNAMELENGHT];
-    } pd[MAXPRODUCTS] = {
-        1, 2.00, "Tomate",
-        2, 5.00, "Abacate",
-        3, 3.50, "Refrigerante Lata",
-        4, 4.30, "Chocolate",
-        5, 2.75, "Café"
-    };
+    } pd[MAXPRODUCTS];
 
     for (int i=0; i<MAXPRODUCTS; ++i)
     {
+        pd[i].id = 0;
+        pd[i].price = 0.0;
+
         if (pd[i].id == 0)
         {
             pd[i].id = i + 1;
 
             printf("Digite o nome do produto de ID=%d: ", pd[i].id);
-            getProductName(pd[i].name, MAXNAMELENGHT);
+            getText(pd[i].name, MAXNAMELENGHT);
         }
+        
     }
 
     for (int i=0; i<MAXPRODUCTS; ++i)
