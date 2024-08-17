@@ -1,12 +1,7 @@
-O que deve ser feito?
--	Um registrador de mercado onde o usuário pode modificar informações de
-	produtos em sua loja.
-
-Programa Básico
--	Registro de produtos
--	Modificação do registro(Adicionar, remover, mudar informações)
--	CLI
-
-Um pouco mais avançado
--	Como armazenar os registros
--	Como tratar as informações do registro
+(To-Do):
+    (FEITO) 1. Criar uma estrutura Produto. Fazê-la como um tipo(typedef);
+    (FEITO) 2. Criar uma função de adicionar um produto;
+        - Função getText separada para garantir o nome do produto;
+        - É na função addPd que todas as instâncias de Produto(id, preço e nome) serão inicializadas;
+    3. Fazer um menu simples.
+    4. Armazenar no SQLite.

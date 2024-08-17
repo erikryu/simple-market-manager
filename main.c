@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAXPRODUCTS 10
-#define MAXNAMELENGHT 50
+#define MAXPRODUCTS 5
+#define MAXNAMELENGTH 50
+
+typedef struct Produto {
+    int id;
+    float price;
+    char productName[MAXNAMELENGTH];
+} pd;
 
 int
 getText(char *text, int lim)
@@ -22,36 +28,38 @@ getText(char *text, int lim)
     return len;
 }
 
+void
+addPd(int id, float *price, char name[MAXNAMELENGTH])
+{
+    printf("Digite o nome do produto: ");
+    getText(name, MAXNAMELENGTH);
+
+    printf("Digite o preço: ");
+    while(scanf("%f", price) != 1)
+    {
+        printf("Entrada inválida. Digite novamente: ");
+        while(getchar() != '\n');
+    }
+
+    while(getchar() != '\n');
+}
+
 int
 main(void)
 {
     int i, j;
-
-    struct Produto {
-        int id;
-        double price;
-        char name[MAXNAMELENGHT];
-    } pd[MAXPRODUCTS];
+    pd products[MAXPRODUCTS];
 
     for (i=0; i<MAXPRODUCTS; ++i)
     {
-        pd[i].id = i + 1;
+        products[i].id = i + 1;
+        products[i].price = 0.0;
 
-        printf("Digite o nome do produto: ");
-        getText(pd[i].name, MAXNAMELENGHT);
-
-        printf("Digite o preço: ");
-        while(scanf("%lf", &pd[i].price) != 1)
-        {
-            printf("Entrada inválida. Digite novamente: ");
-            while(getchar() != '\n');
-        }
-
-        while(getchar() != '\n');
+        addPd(products[i].id, &products[i].price, products[i].productName);
     }
 
     for (int i=0; i<MAXPRODUCTS; ++i)
-        printf("%d %.2lf %s\n", pd[i].id, pd[i].price, pd[i].name);
+        printf("%d %.2lf %s\n", products[i].id, products[i].price, products[i].productName);
 
     return 0;
 }
