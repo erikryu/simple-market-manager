@@ -47,19 +47,42 @@ addPd(int id, float *price, char name[MAXNAMELENGTH])
 int
 main(void)
 {
-    int i, j;
+    int i, option;
     pd products[MAXPRODUCTS];
 
-    for (i=0; i<MAXPRODUCTS; ++i)
+    do
     {
-        products[i].id = i + 1;
-        products[i].price = 0.0;
+        printf("Menu: ");
+        printf("\n1. Adicione alguns produtos");
+        printf("\n2. Liste os produtos já registrados");
+        printf("\n3. Saia do programa");
+        printf("\nDigite a sua escolha: ");
 
-        addPd(products[i].id, &products[i].price, products[i].productName);
-    }
+        scanf("%d", &option);
+        printf("\n");
+        while(getchar()!='\n' && getchar()!=EOF);
 
-    for (int i=0; i<MAXPRODUCTS; ++i)
-        printf("%d %.2lf %s\n", products[i].id, products[i].price, products[i].productName);
+        if (option == 1)
+        {
+            for (i=0; i<MAXPRODUCTS; ++i)
+            {
+                products[i].id = i + 1;
+                products[i].price = 0.0;
+
+                addPd(products[i].id, &products[i].price, products[i].productName);
+            }
+        } else if (option == 2)
+        {
+            for (int i=0; i<MAXPRODUCTS; ++i)
+                printf("%d %.2lf %s\n", products[i].id, products[i].price, products[i].productName);
+
+        } else if (option == 3)
+            printf("OK! Saindo");
+
+        else
+            while(getchar()!='\n' && getchar()!=EOF);
+
+    } while (option != 3);
 
     return 0;
 }
