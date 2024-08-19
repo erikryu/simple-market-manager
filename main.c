@@ -36,34 +36,33 @@ getText(char *text, int lim)
 int
 addPd(int id, double price, char name[MAXNAMELENGTH])
 {
-    int o;
-
-    sqlite3_stmt *stmt;
-    const char *prepstmt = "INSERT INTO produtos (id, price, name) VALUES (?, ?, ?);";
-
-    o = sqlite3_prepare_v2(db, prepstmt, -1, &stmt, NULL);
-    if (o!=SQLITE_OK)
-    {
-        fprintf(stdin, "%s", sqlite3_errmsg(db));
-        return o;
-    }
-
     printf("Digite o nome do produto: ");
     getText(name, MAXNAMELENGTH);
 
     printf("Digite o preço: ");
     scanf("%lf", &price);
     while(getchar() != '\n');
+    
+    sqlite3_stmt *stmt;
+    const char *prepstmt = "INSERT INTO produtos (price, name) VALUES (?, ?);";
 
-    while (sqlite3_step(stmt)==SQLITE_ROW)
+    att = sqlite3_prepare_v2(db, prepstmt, -1, &stmt, NULL);
+    if (att==SQLITE_OK)
     {
-        sqlite3_bind_int(stmt, 1, id);
-        sqlite3_bind_double(stmt, 2, price);
-        sqlite3_bind_text(stmt, 3, name, -1, NULL);
+        sqlite3_bind_double(stmt, 1, price);
+        sqlite3_bind_text(stmt, 2, name, -1, NULL);
+    } else
+    {
+        fprintf(stderr, "Erro em: %s\n", sqlite3_errmsg(db));
+    }
+
+    if (sqlite3_step(stmt)==SQLITE_ROW)
+    {
+        printf("%lf: ", sqlite3_column_double(stmt, 1));
+        printf("%s\n", sqlite3_column_text(stmt, 2));
     }
 
     sqlite3_finalize(stmt);
-
     return 0;
 }
 
