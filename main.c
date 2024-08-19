@@ -1,14 +1,19 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include "sqlite3.h"
 
 #define MAXPRODUCTS 5
 #define MAXNAMELENGTH 50
 
 typedef struct Produto {
     int id;
-    float price;
+    double price;
     char productName[MAXNAMELENGTH];
 } pd;
+
+sqlite3 *db;
+int att;
 
 int
 getText(char *text, int lim)
@@ -28,27 +33,46 @@ getText(char *text, int lim)
     return len;
 }
 
-void
-addPd(int id, float *price, char name[MAXNAMELENGTH])
+int
+addPd(int id, double price, char name[MAXNAMELENGTH])
 {
+    int o;
+
+    sqlite3_stmt *stmt;
+    const char *prepstmt = "INSERT INTO produtos (id, price, name) VALUES (?, ?, ?);";
+
+    o = sqlite3_prepare_v2(db, prepstmt, -1, &stmt, NULL);
+    if (o!=SQLITE_OK)
+    {
+        fprintf(stdin, "%s", sqlite3_errmsg(db));
+        return o;
+    }
+
     printf("Digite o nome do produto: ");
     getText(name, MAXNAMELENGTH);
 
     printf("Digite o preço: ");
-    while(scanf("%f", price) != 1)
+    scanf("%lf", &price);
+    while(getchar() != '\n');
+
+    while (sqlite3_step(stmt)==SQLITE_ROW)
     {
-        printf("Entrada inválida. Digite novamente: ");
-        while(getchar() != '\n');
+        sqlite3_bind_int(stmt, 1, id);
+        sqlite3_bind_double(stmt, 2, price);
+        sqlite3_bind_text(stmt, 3, name, -1, NULL);
     }
 
-    while(getchar() != '\n');
+    sqlite3_finalize(stmt);
+
+    return 0;
 }
 
-int
-main(void)
+void
+menu(pd products)
 {
-    int i, option;
-    pd products[MAXPRODUCTS];
+    int option, i;
+    
+    option = 0;
 
     do
     {
@@ -64,18 +88,12 @@ main(void)
 
         if (option == 1)
         {
-            for (i=0; i<MAXPRODUCTS; ++i)
-            {
-                products[i].id = i + 1;
-                products[i].price = 0.0;
+            addPd(products.id, products.price, products.productName);
 
-                addPd(products[i].id, &products[i].price, products[i].productName);
-            }
         } else if (option == 2)
         {
             for (int i=0; i<MAXPRODUCTS; ++i)
-                printf("%d %.2lf %s\n", products[i].id, products[i].price, products[i].productName);
-
+                ;
         } else if (option == 3)
             printf("OK! Saindo");
 
@@ -83,6 +101,30 @@ main(void)
             while(getchar()!='\n' && getchar()!=EOF);
 
     } while (option != 3);
+}
+
+int
+main(void)
+{
+    int i, option;
+    pd products;
+
+    att = sqlite3_open("products.db", &db);
+
+    const char *mkIndex = "CREATE TABLE IF NOT EXISTS produtos(id INTEGER PRIMARY KEY AUTOINCREMENT, price FLOAT, name VARCHAR(50));";
+    char *errmsg = 0;
+    att = sqlite3_exec(db, mkIndex, NULL, NULL, &errmsg);
+    if (att != SQLITE_OK)
+    {
+        fprintf(stderr,"Erro ao abrir banco de dados: %s\n", errmsg);
+        sqlite3_free(errmsg);
+        sqlite3_close(db);
+        return att; 
+    }
+
+    menu(products);
+
+    sqlite3_close(db);
 
     return 0;
 }
