@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 #include "sqlite3.h"
 
 #define MAXPRODUCTS 5
@@ -13,7 +12,24 @@ typedef struct Produto {
 } pd;
 
 sqlite3 *db;
+sqlite3_stmt *stmt;
+
 int att;
+char *errmsg = 0;
+
+int
+callback(void *Ununsed, int argc, char **argv, char **azColumName)
+{
+    Ununsed = 0;
+
+    for(int i=0; i<argc; i++)
+    {
+        printf("%s = %s\n", azColumName[i], argv[i] ? argv[i] : "NULL");
+    }
+    printf("\n");
+
+    return 0;
+}
 
 int
 getText(char *text, int lim)
@@ -43,7 +59,6 @@ addPd(int id, double price, char name[MAXNAMELENGTH])
     scanf("%lf", &price);
     while(getchar() != '\n');
     
-    sqlite3_stmt *stmt;
     const char *prepstmt = "INSERT INTO produtos (price, name) VALUES (?, ?);";
 
     att = sqlite3_prepare_v2(db, prepstmt, -1, &stmt, NULL);
@@ -64,6 +79,13 @@ addPd(int id, double price, char name[MAXNAMELENGTH])
 
     sqlite3_finalize(stmt);
     return 0;
+}
+
+void
+listProducts()
+{
+    const char *sqlist = "SELECT * FROM produtos";
+    att = sqlite3_exec(db, sqlist, callback, 0, &errmsg);
 }
 
 void
@@ -91,8 +113,7 @@ menu(pd products)
 
         } else if (option == 2)
         {
-            for (int i=0; i<MAXPRODUCTS; ++i)
-                ;
+            listProducts();
         } else if (option == 3)
             printf("OK! Saindo");
 
@@ -111,7 +132,6 @@ main(void)
     att = sqlite3_open("products.db", &db);
 
     const char *mkIndex = "CREATE TABLE IF NOT EXISTS produtos(id INTEGER PRIMARY KEY AUTOINCREMENT, price FLOAT, name VARCHAR(50));";
-    char *errmsg = 0;
     att = sqlite3_exec(db, mkIndex, NULL, NULL, &errmsg);
     if (att != SQLITE_OK)
     {
