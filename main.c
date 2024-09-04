@@ -14,7 +14,7 @@ typedef struct Produto {
 sqlite3 *db;
 sqlite3_stmt *stmt;
 
-int att;
+int rc;
 char *errmsg = 0;
 
 int
@@ -61,8 +61,8 @@ addPd(int id, double price, char name[MAXNAMELENGTH])
     
     const char *prepstmt = "INSERT INTO produtos (price, name) VALUES (?, ?);";
 
-    att = sqlite3_prepare_v2(db, prepstmt, -1, &stmt, NULL);
-    if (att==SQLITE_OK)
+    rc = sqlite3_prepare_v2(db, prepstmt, -1, &stmt, NULL);
+    if (rc==SQLITE_OK)
     {
         sqlite3_bind_double(stmt, 1, price);
         sqlite3_bind_text(stmt, 2, name, -1, NULL);
@@ -85,7 +85,35 @@ void
 listProducts()
 {
     const char *sqlist = "SELECT * FROM produtos";
-    att = sqlite3_exec(db, sqlist, callback, 0, &errmsg);
+    rc = sqlite3_exec(db, sqlist, callback, 0, &errmsg);
+}
+
+int
+delPd()
+{
+    int gid = 0;
+    char *delsql = "DELETE FROM produtos WHERE id = ?;";
+
+    printf("Digite o nome do produto a ser removido: ");
+    scanf("%d", &gid);
+    while (getchar()!='\n');
+
+    rc = sqlite3_prepare_v2(db, delsql, -1, &stmt, NULL);
+    if (rc==SQLITE_OK)
+    {
+        sqlite3_bind_int(stmt, 1, gid);
+    } else fprintf(stderr, "Erro em: %s\n", sqlite3_errmsg(db));
+
+    rc = sqlite3_step(stmt);
+    if (rc!=SQLITE_DONE)
+    {
+        fprintf(stderr, "Erro em: %s\n", sqlite3_errmsg(db));
+    } else {
+        printf("Linha deletada");
+        sqlite3_finalize(stmt);
+    }
+
+    return 0;
 }
 
 void
@@ -100,7 +128,8 @@ menu(pd products)
         printf("Menu: ");
         printf("\n1. Adicione alguns produtos");
         printf("\n2. Liste os produtos já registrados");
-        printf("\n3. Saia do programa");
+        printf("\n3. Remove um produto por ID");
+        printf("\n4. Sair");
         printf("\nDigite a sua escolha: ");
 
         scanf("%d", &option);
@@ -115,12 +144,15 @@ menu(pd products)
         {
             listProducts();
         } else if (option == 3)
-            printf("OK! Saindo");
+        {
+            delPd();
+        } else if(option == 4)
+            printf("OK! SAINDO");
 
         else
             while(getchar()!='\n' && getchar()!=EOF);
 
-    } while (option != 3);
+    } while (option != 4);
 }
 
 int
@@ -129,16 +161,16 @@ main(void)
     int i, option;
     pd products;
 
-    att = sqlite3_open("products.db", &db);
+    rc = sqlite3_open("products.db", &db);
 
     const char *mkIndex = "CREATE TABLE IF NOT EXISTS produtos(id INTEGER PRIMARY KEY AUTOINCREMENT, price FLOAT, name VARCHAR(50));";
-    att = sqlite3_exec(db, mkIndex, NULL, NULL, &errmsg);
-    if (att != SQLITE_OK)
+    rc = sqlite3_exec(db, mkIndex, NULL, NULL, &errmsg);
+    if (rc != SQLITE_OK)
     {
         fprintf(stderr,"Erro ao abrir banco de dados: %s\n", errmsg);
         sqlite3_free(errmsg);
         sqlite3_close(db);
-        return att; 
+        return rc; 
     }
 
     menu(products);
