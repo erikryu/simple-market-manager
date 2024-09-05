@@ -88,7 +88,63 @@ listProducts()
     rc = sqlite3_exec(db, sqlist, callback, 0, &errmsg);
 }
 
-int
+void
+update(int id, double price, char name[MAXNAMELENGTH])
+{
+    int op;
+
+    printf("Qual produto você quer atualizar? ID = ");
+    scanf("%d", &id);
+    
+    printf("Qual valor você atualizar? (1 = name, 2 = price) ");
+    scanf("%d", &op);
+
+    if (op==1)
+    {
+        printf("Qual é o novo nome? ");
+        getText(name, MAXNAMELENGTH);
+
+        char *updtsql = "UPDATE produtos SET name = ? WHERE id = ?;";
+
+        rc = sqlite3_prepare_v2(db, updtsql, -1, &stmt, NULL);
+        if (rc != SQLITE_OK)
+        {
+            fprintf(stderr, "Erro em: %s\n", sqlite3_errmsg(db));
+        } else
+        {
+            sqlite3_bind_text(stmt, 1, name, -1, NULL);
+            sqlite3_bind_int(stmt, 2, id);
+        }
+
+        sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+
+    } else if (op==2)
+    {
+        printf("Digite o novo preço: ");
+        scanf("%lf", &price);
+
+        char *updtsql = "UPDATE produtos SET price = ? WHERE id = ?;";
+
+        rc = sqlite3_prepare_v2(db, updtsql, -1, &stmt, NULL);
+        if (rc != SQLITE_OK)
+        {
+            fprintf(stderr, "Erro em: %s\n", sqlite3_errmsg(db));
+        } else
+        {
+            sqlite3_bind_double(stmt, 1, price);
+            sqlite3_bind_int(stmt, 2, id);
+        }
+
+        sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+    } else
+    {
+        printf("Digite uma opção válida");
+    }
+}
+
+void
 delPd()
 {
     int gid = 0;
@@ -112,8 +168,6 @@ delPd()
         printf("Linha deletada");
         sqlite3_finalize(stmt);
     }
-
-    return 0;
 }
 
 void
@@ -129,7 +183,8 @@ menu(pd products)
         printf("\n1. Adicione alguns produtos");
         printf("\n2. Liste os produtos já registrados");
         printf("\n3. Remove um produto por ID");
-        printf("\n4. Sair");
+        printf("\n4. Modificar produto por ID");
+        printf("\n5. Sair");
         printf("\nDigite a sua escolha: ");
 
         scanf("%d", &option);
@@ -147,12 +202,15 @@ menu(pd products)
         {
             delPd();
         } else if(option == 4)
+        {
+            update(products.id, products.price, products.productName);
+        } else if(option == 5)
             printf("OK! SAINDO");
 
         else
             while(getchar()!='\n' && getchar()!=EOF);
 
-    } while (option != 4);
+    } while (option != 5);
 }
 
 int
