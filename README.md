@@ -1,4 +1,4 @@
-#simple-market-manager
+# simple-market-manager
 Uma implementação CRUD simples com SQLite3 C API.
 
 ### Passos para compilação
