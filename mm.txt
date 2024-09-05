@@ -5,4 +5,5 @@
         - É na função addPd que todas as instâncias de Produto(id, preço e nome) serão inicializadas;
     (FEITO) 3. Fazer um menu simples;
     (FEITO) 4. Armazenar no SQLite;
-    5. Adicionar função para remover e editar informações de produtos;
+    (FEITO) 5. Adicionar função para remover
+    6. editar informações de produtos;
